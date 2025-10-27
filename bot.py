@@ -2,7 +2,7 @@ from aiogram import Bot, Dispatcher, types
 import asyncio
 from aiohttp import web
 
-API_TOKEN = "SIZNING_BOT_TOKENINGIZ"
+API_TOKEN = 8238182597:AAFHRc6ATDGqrPCbg0SJGxNusVUV2niA-4s
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
