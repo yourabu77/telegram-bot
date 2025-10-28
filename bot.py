@@ -2,7 +2,7 @@ from aiogram import Bot, Dispatcher, types
 import asyncio
 from aiohttp import web
 
-API_TOKEN = "8238182597:AAFHRc6ATDGqrPCbg0SJGxNusVUV2niA-4s"
+API_TOKEN = "8238182597:AAEOe784Eoai7n7v7d2xoeyfTsFpznjuTkk"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
