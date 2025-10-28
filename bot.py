@@ -17,7 +17,7 @@ async def handler(message: types.Message):
 
 
 async def main():
-    print("Bot ishga tushdi ✅")
+    print("🤖 Bot ishga tushdi va polling boshladi ✅")
     await dp.start_polling(bot)
 
 
@@ -29,8 +29,9 @@ def start():
     app = web.Application()
     app.router.add_get("/", handle)
 
-    loop = asyncio.get_event_loop()
-    loop.create_task(main())  # botni asinxron tarzda ishga tushiramiz
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.create_task(main())
     web.run_app(app, host="0.0.0.0", port=8000)
 
 
