@@ -4,6 +4,7 @@ import asyncio
 import os
 
 API_TOKEN = "8238182597:AAEOe784Eoai7n7v7d2xoeyfTsFpznjuTkk"
+
 WEBHOOK_PATH = "/webhook"
 WEBHOOK_URL = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}{WEBHOOK_PATH}"
 
@@ -42,9 +43,9 @@ def start():
     app.on_startup.append(on_startup)
     app.on_shutdown.append(on_shutdown)
 
-    port = int(os.getenv("PORT", 8080))
+    port = int(os.getenv("PORT", 10000))
     web.run_app(app, host="0.0.0.0", port=port)
 
 
-if __name__ == "__main__":
+if name == "__main__":
     start()
