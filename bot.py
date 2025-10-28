@@ -1,6 +1,8 @@
+
 from aiogram import Bot, Dispatcher, types
 import asyncio
 from aiohttp import web
+import os
 
 API_TOKEN = "8238182597:AAEOe784Eoai7n7v7d2xoeyfTsFpznjuTkk"
 
@@ -32,7 +34,10 @@ def start():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.create_task(main())
-    web.run_app(app, host="0.0.0.0", port=8000)
+
+    # Render avtomatik port beradi
+    port = int(os.getenv("PORT", 8080))
+    web.run_app(app, host="0.0.0.0", port=port)
 
 
 if __name__ == "__main__":
