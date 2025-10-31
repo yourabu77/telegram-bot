@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, types
 from aiohttp import web
-import asyncio
+from googletrans import Translator
 import os
 
 API_TOKEN = "8238182597:AAEOe784Eoai7n7v7d2xoeyfTsFpznjuTkk"
@@ -10,6 +10,7 @@ WEBHOOK_URL = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}{WEBHOOK_PATH}"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
+translator = Translator()
 
 # Foydalanuvchi sozlamalari (tarjima yo‘nalishi)
 user_settings = {}
@@ -35,32 +36,24 @@ async def handler(message: types.Message):
             parse_mode="HTML"
         )
 
-    # --- HELP komandasi ---
     elif text == "/help":
         await message.answer(
             "🆘 <b>Yordam</b>\n\n"
             "Siz shunchaki matn yuboring — bot uni avtomatik tarjima qiladi.\n"
-            "Misollar:\n"
-            "➡️ 'Wie geht’s?' → 'Qandaysiz?'\n"
-            "➡️ 'Men yaxshi' → 'Ich bin gut'\n\n"
-            "⚙️ Tilni o‘zgartirish uchun /settings buyrug‘idan foydalaning.\n\n"
-            "👨‍💻 Dasturchi: <a href='https://t.me/yourabu'>@yourabu</a>",
+            "Misollar:\n➡️ 'Wie geht’s?' → 'Qandaysiz?'\n➡️ 'Men yaxshi' → 'Ich bin gut'\n\n"
+            "⚙️ Tilni o‘zgartirish uchun /settings buyrug‘idan foydalaning.",
             parse_mode="HTML"
         )
 
-    # --- ABOUT komandasi ---
     elif text == "/about":
         await message.answer(
             "ℹ️ <b>Bot haqida</b>\n\n"
             "🤖 <b>Nom:</b> Nemis–O‘zbek Tarjimon Bot\n"
-            "🕓 <b>Holat:</b> 24/7 onlayn ishlaydi\n"
-            "🧠 <b>Texnologiya:</b> Python + Aiogram + Render Webhook\n"
-            "📅 <b>Versiya:</b> 2.2 (2025)\n\n"
-            "👨‍💻 Dasturchi: <a href='https://t.me/yourabu'>@yourabu</a>",
+            "🧠 <b>Texnologiya:</b> Python + Aiogram + Googletrans\n"
+            "📅 <b>Versiya:</b> 2.5 (2025)",
             parse_mode="HTML"
         )
 
-    # --- SETTINGS komandasi ---
     elif text == "/settings":
         keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
             [
@@ -68,28 +61,22 @@ async def handler(message: types.Message):
                 types.InlineKeyboardButton(text="🇺🇿 O‘zbek ➜ Nemis", callback_data="lang_uz_de")
             ]
         ])
-        await message.answer(
-            "⚙️ <b>Tarjima yo‘nalishini tanlang:</b>",
-            reply_markup=keyboard,
-            parse_mode="HTML"
-        )
+        await message.answer("⚙️ <b>Tarjima yo‘nalishini tanlang:</b>", reply_markup=keyboard, parse_mode="HTML")
 
-    # --- Boshqa matnlar ---
     else:
         direction = user_settings.get(user_id, "de_uz")
-        if direction == "de_uz":
-            await message.answer(
-                f"🇩🇪➡️🇺🇿 <b>Nemischa matn qabul qilindi:</b>\n<code>{text}</code>\n\n(Tarjima funksiyasi tez orada ulanadi ✅)",
-                parse_mode="HTML"
-            )
-        else:
-            await message.answer(
-                f"🇺🇿➡️🇩🇪 <b>O‘zbekcha matn qabul qilindi:</b>\n<code>{text}</code>\n\n(Tarjima funksiyasi tez orada ulanadi ✅)",
-                parse_mode="HTML"
-            )
+        try:
+            if direction == "de_uz":
+                result = translator.translate(text, src="de", dest="uz")
+                await message.answer(f"🇩🇪➡️🇺🇿 <b>Tarjima:</b>\n{result.text}", parse_mode="HTML")
+            else:
+                result = translator.translate(text, src="uz", dest="de")
+                await message.answer(f"🇺🇿➡️🇩🇪 <b>Übersetzung:</b>\n{result.text}", parse_mode="HTML")
+        except Exception as e:
+            await message.answer("❌ Tarjima vaqtida xatolik yuz berdi. Iltimos, qaytadan urinib ko‘ring.")
+            print(e)
 
 
-# --- Callback tugmalari ---
 @dp.callback_query()
 async def callback_handler(callback: types.CallbackQuery):
     user_id = callback.from_user.id
@@ -101,7 +88,7 @@ async def callback_handler(callback: types.CallbackQuery):
         await callback.message.edit_text("✅ Til yo‘nalishi: 🇺🇿 O‘zbek ➜ 🇩🇪 Nemis")
 
 
-# --- Webhook funksiyalar ---
+# --- Webhook ---
 async def on_startup(app):
     await bot.set_webhook(WEBHOOK_URL)
     print(f"✅ Webhook o‘rnatildi: {WEBHOOK_URL}")
@@ -120,7 +107,6 @@ async def handle(request):
     return web.Response()
 
 
-# --- Asosiy ishga tushirish ---
 def start():
     app = web.Application()
     app.router.add_post(WEBHOOK_PATH, handle)
