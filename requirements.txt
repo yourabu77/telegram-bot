@@ -1,3 +1,6 @@
+
 aiogram==3.3.0
-aiohttp
+aiohttp==3.9.5
 googletrans==4.0.0-rc1
+pydantic==1.10.15
+frozenlist==1.4.1
